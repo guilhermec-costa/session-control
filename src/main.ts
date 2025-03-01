@@ -1,14 +1,3 @@
-import fastify from "fastify";
-import fastifyCookie from "@fastify/cookie";
-import fastifySession from "@fastify/session";
-import crypto, { randomUUID } from "crypto";
-import { dbClient, setupDb } from "./infra/db-connection";
-import { z } from "zod";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { jwtExceptionHandler } from "./api/exception-handlers";
-import { jwtAuthorizationMiddleware } from "./api/middlewares";
-
 /*
   Cookies:
     Porções de dado enviadas ao navegador.
@@ -53,9 +42,26 @@ import { jwtAuthorizationMiddleware } from "./api/middlewares";
   sendo possível extender para caches escaláveis, como redis
 */
 
+import fastify from "fastify";
+import fastifyCookie from "@fastify/cookie";
+import fastifySession from "@fastify/session";
+import crypto, { randomUUID } from "crypto";
+import { dbClient, setupDb } from "./infra/db-connection";
+import { z } from "zod";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { jwtExceptionHandler } from "./api/exception-handlers";
+import { jwtAuthorizationMiddleware } from "./api/middlewares";
+
 declare module "fastify" {
   interface Session {
     loggedUser: any;
+  }
+}
+
+declare module "@fastify/session" {
+  interface SessionStore {
+    sessions: Object;
   }
 }
 
@@ -77,6 +83,27 @@ app.register(fastifySession, {
     secure: false,
   },
   cookieName: "custom-session-id",
+  store: {
+    sessions: {},
+
+    get(sid, cb) {
+      console.log("gettting sessionid ", sid);
+
+      //@ts-ignore
+      cb(null, this.sessions[sid]);
+    },
+    set(sid, session, cb) {
+      console.log("setting session id ", sid);
+      //@ts-ignore
+      this.sessions[sid] = session;
+      cb(null);
+    },
+    destroy(sid, cb) {
+      //@ts-ignore
+      delete this.sessions[sid];
+      cb(null);
+    },
+  },
 });
 
 dbClient
@@ -178,6 +205,10 @@ app.get(
     res.status(200).send(req.session.get("loggedUser"));
   }
 );
+
+app.get("/getMySessionStore", async (req, res) => {
+  res.status(200).send(req.sessionStore);
+});
 
 app
   .listen({
