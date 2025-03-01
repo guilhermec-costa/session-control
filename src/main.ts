@@ -13,11 +13,11 @@
 
   req.sessionStore: {
     session1: {
-      datax: 131231,
+      cookie: 131231,
       datay: 23423423
     },
     session2: {
-      dataz: 655364
+      cookie: 655364
       datab: 680678
     }
   }
@@ -52,6 +52,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { jwtExceptionHandler } from "./api/exception-handlers";
 import { jwtAuthorizationMiddleware } from "./api/middlewares";
+import { InMemorySessionControl } from "./infra/in-memory-session-managing";
 
 declare module "fastify" {
   interface Session {
@@ -83,27 +84,7 @@ app.register(fastifySession, {
     secure: false,
   },
   cookieName: "custom-session-id",
-  store: {
-    sessions: {},
-
-    get(sid, cb) {
-      console.log("gettting sessionid ", sid);
-
-      //@ts-ignore
-      cb(null, this.sessions[sid]);
-    },
-    set(sid, session, cb) {
-      console.log("setting session id ", sid);
-      //@ts-ignore
-      this.sessions[sid] = session;
-      cb(null);
-    },
-    destroy(sid, cb) {
-      //@ts-ignore
-      delete this.sessions[sid];
-      cb(null);
-    },
-  },
+  store: InMemorySessionControl,
 });
 
 dbClient
