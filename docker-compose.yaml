@@ -1,0 +1,18 @@
+version: "3.1"
+
+services:
+  session-db:
+    image: postgres
+    restart: always
+    ports:
+      - 5435:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: session-control
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
