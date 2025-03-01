@@ -48,6 +48,7 @@ import fastifySession from "@fastify/session";
 import crypto, { randomUUID } from "crypto";
 import { dbClient, setupDb } from "./infra/db-connection";
 import { InMemorySessionControl } from "./infra/in-memory-session-managing";
+import { redisClient } from "./infra/redis-connection";
 
 declare module "fastify" {
   interface Session {

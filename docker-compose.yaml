@@ -14,5 +14,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  session-control-redis:
+    image: redis
+    container_name: redis-session-control
+    ports:
+      - 6380:6379
+
 volumes:
   pgdata:
