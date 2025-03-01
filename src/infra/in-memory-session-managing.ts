@@ -1,10 +1,10 @@
+import { SessionStore } from "@fastify/session";
 import type * as Fastify from "fastify";
 
 type CallbackSession = (err: any, result?: Fastify.Session | null) => void;
 
-export const InMemorySessionControl = {
+export const InMemorySessionControl: SessionStore = {
   sessions: {},
-
   get(sid: string, cb: CallbackSession) {
     console.log("gettting sessionid ", sid);
 

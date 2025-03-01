@@ -49,16 +49,18 @@ import crypto, { randomUUID } from "crypto";
 import { dbClient, setupDb } from "./infra/db-connection";
 import { InMemorySessionControl } from "./infra/in-memory-session-managing";
 import { redisClient } from "./infra/redis-connection";
+import { RedisSessionControl } from "./infra/redis-session-managing";
 
 declare module "fastify" {
   interface Session {
     loggedUser: any;
+    userId: string;
   }
 }
 
 declare module "@fastify/session" {
   interface SessionStore {
-    sessions: Object;
+    sessions?: Object;
   }
 }
 
@@ -79,8 +81,9 @@ app.register(fastifySession, {
     httpOnly: true,
     secure: false,
   },
-  cookieName: "custom-session-id",
-  store: InMemorySessionControl,
+  cookieName: "sessionId",
+  /* store: InMemorySessionControl, */
+  store: RedisSessionControl,
 });
 
 dbClient
